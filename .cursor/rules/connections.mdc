@@ -1,0 +1,4 @@
+---
+description: Do quality assurance on the codebase and ensure that it is operational. Do not put dummy data in the code, where ever there is data missing, please point that out with a message saying data missing. But no need to generate dummy data please. 
+alwaysApply: false
+---

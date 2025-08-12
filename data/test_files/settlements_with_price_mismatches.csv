@@ -1,0 +1,6 @@
+TransactionID,SecurityID,SecurityType,Quantity,Price,Currency,TradeDate,SettlementDate,Counterparty,Trader,Desk,ProductType,Status
+TXN-001,US0378331005,EQUITY,1000,165.50,USD,2024-08-01,2024-08-03,Goldman Sachs,John Smith,Equity Desk,Stock,CONFIRMED
+TXN-002,US88160R1014,EQUITY,500,50.80,USD,2024-08-01,2024-08-03,Morgan Stanley,Jane Doe,Equity Desk,Stock,CONFIRMED
+TXN-003,US0378331005,EQUITY,2000,149.80,USD,2024-08-02,2024-08-06,JP Morgan,Mike Johnson,Equity Desk,Stock,PENDING
+TXN-004,US88160R1014,EQUITY,750,46.20,USD,2024-08-02,2024-08-06,Citigroup,Sarah Wilson,Equity Desk,Stock,CONFIRMED
+TXN-005,US67066G1040,BOND,5000,98.50,USD,2024-08-03,2024-08-07,Bank of America,David Brown,Fixed Income,Government Bond,CONFIRMED
