@@ -149,14 +149,19 @@ const WorkflowWindow: React.FC<WorkflowWindowProps> = ({
         }
 
         const result = await response.json();
-        setWorkflow(result.workflow);
-
-        // Stop polling if workflow is completed or failed
-        if (result.workflow.status === 'completed' || result.workflow.status === 'failed') {
+        if (result && result.workflow && typeof result.workflow.status === 'string') {
+          setWorkflow(result.workflow);
+          // Stop polling if workflow is completed or failed
+          if (result.workflow.status === 'completed' || result.workflow.status === 'failed') {
+            clearInterval(pollInterval);
+          }
+        } else {
+          setError('Workflow status not available. Please try again later.');
           clearInterval(pollInterval);
         }
       } catch (err) {
         console.error('Error polling workflow status:', err);
+        setError('Error polling workflow status.');
         clearInterval(pollInterval);
       }
     }, 1000); // Poll every second
@@ -294,7 +299,7 @@ const WorkflowWindow: React.FC<WorkflowWindowProps> = ({
               </Typography>
               
               <List dense sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {workflow.logs.map((step, index) => (
+                {(workflow && workflow.logs ? workflow.logs : []).map((step, index) => (
                   <ListItem key={index} sx={{ py: 0.5 }}>
                     <ListItemIcon sx={{ minWidth: 32 }}>
                       {getStepIcon(step.level)}
@@ -308,7 +313,7 @@ const WorkflowWindow: React.FC<WorkflowWindowProps> = ({
                   </ListItem>
                 ))}
                 
-                {workflow.logs.length === 0 && (
+                {(!workflow || !workflow.logs || workflow.logs.length === 0) && (
                   <ListItem>
                     <ListItemText
                       primary="No logs available yet"

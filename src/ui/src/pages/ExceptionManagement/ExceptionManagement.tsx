@@ -86,6 +86,10 @@ const ExceptionManagement: React.FC = () => {
   });
   const [workflowWindowOpen, setWorkflowWindowOpen] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
+  // 1. Add state for review modal
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewAction, setReviewAction] = useState<string | null>(null);
+  const [reviewDetails, setReviewDetails] = useState<any>(null);
 
   const refreshExceptions = async () => {
     setIsLoading(true);
@@ -715,7 +719,32 @@ const ExceptionManagement: React.FC = () => {
                 )}
               </Box>
               
-              {/* AI Analysis Section */}
+              {/* Detailed Differences Section - MOVED BEFORE AI ANALYSIS */}
+              {selectedException.detailedDifferences && (
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 2, color: 'error.main' }}>
+                    Detailed Differences
+                  </Typography>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                        {Object.entries(selectedException.detailedDifferences).map(([key, value]) => (
+                          <Box key={key} sx={{ flex: '1', minWidth: '200px' }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                              {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            </Typography>
+                            <Typography variant="body1" fontFamily="monospace" color="error.main">
+                              {typeof value === 'number' ? value.toFixed(4) : String(value)}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Box>
+              )}
+              
+              {/* AI Analysis Section - CLEANED UP */}
               {selectedException.aiReasoning && (
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
@@ -727,24 +756,25 @@ const ExceptionManagement: React.FC = () => {
                         Reasoning
                       </Typography>
                       <Typography variant="body1">
-                        {selectedException.aiReasoning}
+                        {selectedException.aiReasoning.replace(/[A-Za-z\s]+:\s*[\d.,]+/g, '').trim() || selectedException.aiReasoning}
                       </Typography>
                     </CardContent>
                   </Card>
                 </Box>
               )}
               
-              {/* Recommended Actions Section */}
-              {selectedException.aiSuggestedActions && selectedException.aiSuggestedActions.length > 0 && (
+              {/* Integrated Recommended Actions and Workflows */}
+              {((selectedException.aiSuggestedActions && selectedException.aiSuggestedActions.length > 0) || (selectedException.workflowTriggers && selectedException.workflowTriggers.length > 0)) && (
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="h6" sx={{ mb: 2, color: 'success.main' }}>
-                    Recommended Actions
+                    Recommended Actions & Workflows
                   </Typography>
                   <Card variant="outlined">
                     <CardContent>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {selectedException.aiSuggestedActions.map((action, index) => (
-                          <Box key={index} sx={{ 
+                        {/* AI Suggested Actions */}
+                        {selectedException.aiSuggestedActions?.map((action, index) => (
+                          <Box key={`action-${index}`} sx={{ 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'space-between',
@@ -762,31 +792,89 @@ const ExceptionManagement: React.FC = () => {
                               </Typography>
                             </Box>
                             <Box sx={{ display: 'flex', gap: 1 }}>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                color="primary"
-                                onClick={() => handleExecuteAction(action, selectedException)}
-                                startIcon={<PlayArrowIcon />}
-                              >
-                                Execute
-                              </Button>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                color="secondary"
-                                onClick={() => handleReviewAction(action, selectedException)}
-                                startIcon={<VisibilityIcon />}
-                              >
-                                Review
-                              </Button>
+                              {/* Find matching workflow for this action */}
+                              {selectedException.workflowTriggers && selectedException.workflowTriggers.find((w: any) => 
+                                w.action === action || w.title === action
+                              ) ? (
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  color="success"
+                                  onClick={() => handleExecuteWorkflow(
+                                    selectedException.workflowTriggers!.find((w: any) => 
+                                      w.action === action || w.title === action
+                                    )!
+                                  )}
+                                  startIcon={<LaunchIcon />}
+                                >
+                                  Execute Workflow
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    color="secondary"
+                                    onClick={() => {
+                                      setReviewAction(action);
+                                      setReviewDetails({
+                                        ...selectedException,
+                                        aiReviewComment: `AI Review: This action is recommended based on detected break type (${selectedException.breakType}) and severity (${selectedException.severity}). Please verify all details before approval.`
+                                      });
+                                      setReviewModalOpen(true);
+                                    }}
+                                    startIcon={<VisibilityIcon />}
+                                  >
+                                    Review
+                                  </Button>
+                                </>
+                              )}
                             </Box>
+                          </Box>
+                        ))}
+                        
+                        {/* Additional Workflows not covered by AI actions */}
+                        {selectedException.workflowTriggers && selectedException.workflowTriggers.filter((workflow: any) => 
+                          !selectedException.aiSuggestedActions?.some((action: string) => 
+                            workflow.action === action || workflow.title === action
+                          )
+                        ).map((workflow: any, index: number) => (
+                          <Box key={`workflow-${index}`} sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between',
+                            p: 2,
+                            border: '1px solid #4caf50',
+                            borderRadius: 1,
+                            backgroundColor: '#f1f8e9'
+                          }}>
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="body1" sx={{ mb: 0.5, color: 'success.main', fontWeight: 'bold' }}>
+                                {workflow.title}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                {workflow.description}
+                              </Typography>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Chip label={`Workflow ID: ${workflow.workflow_id}`} size="small" variant="outlined" />
+                                <Chip label={`Action: ${workflow.action}`} size="small" variant="outlined" />
+                              </Box>
+                            </Box>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              startIcon={<LaunchIcon />}
+                              onClick={() => handleExecuteWorkflow(workflow)}
+                              size="small"
+                            >
+                              Execute Workflow
+                            </Button>
                           </Box>
                         ))}
                       </Box>
                       <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #e0e0e0' }}>
                         <Typography variant="body2" color="text.secondary">
-                          💡 Click "Execute" to automatically apply the action, or "Review" to manually review before applying.
+                          💡 Workflows provide automated resolution steps. Click "Execute Workflow" for automated processing or "Execute/Review" for manual actions.
                         </Typography>
                       </Box>
                     </CardContent>
@@ -841,71 +929,6 @@ const ExceptionManagement: React.FC = () => {
                       </Box>
                     </CardContent>
                   </Card>
-                </Box>
-              )}
-              
-              {/* Detailed Differences Section */}
-              {selectedException.detailedDifferences && (
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ mb: 2, color: 'error.main' }}>
-                    Detailed Differences
-                  </Typography>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                        {Object.entries(selectedException.detailedDifferences).map(([key, value]) => (
-                          <Box key={key} sx={{ flex: '1', minWidth: '200px' }}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                              {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                            </Typography>
-                            <Typography variant="body1" fontFamily="monospace" color="error.main">
-                              {typeof value === 'number' ? value.toFixed(4) : String(value)}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Box>
-              )}
-              
-              {/* Workflow Triggers Section */}
-              {selectedException.workflowTriggers && selectedException.workflowTriggers.length > 0 && (
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ mb: 2, color: 'success.main' }}>
-                    Resolution Workflows
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {selectedException.workflowTriggers.map((workflow: any, index: number) => (
-                      <Card key={index} variant="outlined" sx={{ borderColor: 'success.main' }}>
-                        <CardContent>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                            <Box>
-                              <Typography variant="subtitle1" fontWeight="bold" color="success.main">
-                                {workflow.title}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {workflow.description}
-                              </Typography>
-                            </Box>
-                            <Button
-                              variant="contained"
-                              color="success"
-                              startIcon={<LaunchIcon />}
-                              onClick={() => handleExecuteWorkflow(workflow)}
-                              size="small"
-                            >
-                              Execute Workflow
-                            </Button>
-                          </Box>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            <Chip label={`Workflow ID: ${workflow.workflow_id}`} size="small" variant="outlined" />
-                            <Chip label={`Action: ${workflow.action}`} size="small" variant="outlined" />
-                          </Box>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </Box>
                 </Box>
               )}
             </Box>
@@ -978,6 +1001,33 @@ const ExceptionManagement: React.FC = () => {
           }}
         />
       )}
+
+      {/* Review Modal */}
+      <Dialog open={reviewModalOpen} onClose={() => setReviewModalOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Review Action</DialogTitle>
+        <DialogContent>
+          {reviewDetails && (
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">Action</Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>{reviewAction}</Typography>
+              <Typography variant="subtitle2" color="text.secondary">Break Type</Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>{reviewDetails.breakType}</Typography>
+              <Typography variant="subtitle2" color="text.secondary">Severity</Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>{reviewDetails.severity}</Typography>
+              <Typography variant="subtitle2" color="text.secondary">Description</Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>{reviewDetails.description}</Typography>
+              <Typography variant="subtitle2" color="primary.main" sx={{ mt: 2 }}>AI Review Comment</Typography>
+              <Paper sx={{ p: 2, mt: 1, backgroundColor: '#f5f5f5' }}>
+                <Typography variant="body2">{reviewDetails.aiReviewComment}</Typography>
+              </Paper>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReviewModalOpen(false)}>Close</Button>
+          <Button variant="contained" color="success" onClick={() => setReviewModalOpen(false)}>Approve</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -1,0 +1,173 @@
+# Logging Configuration for FS Reconciliation Agents
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  
+  detailed:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  
+  json:
+    format: '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "message": "%(message)s", "module": "%(module)s", "function": "%(funcName)s", "line": "%(lineno)d"}'
+    datefmt: "%Y-%m-%dT%H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+    stream: ext://sys.stdout
+  
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/fs_reconciliation.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+  
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/fs_reconciliation_errors.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+  
+  audit_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/audit_trail.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 10
+    encoding: utf8
+  
+  performance_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/performance.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+loggers:
+  # Root logger
+  "":
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  # Application loggers
+  src:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  src.api:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  src.core:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  src.core.agents:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  src.core.services:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  src.ui:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  # Database logger
+  sqlalchemy:
+    level: WARNING
+    handlers: [console, file]
+    propagate: false
+  
+  # AI/ML loggers
+  openai:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+  
+  langchain:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+  
+  langgraph:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+  
+  # Security logger
+  security:
+    level: INFO
+    handlers: [console, audit_file]
+    propagate: false
+  
+  # Performance logger
+  performance:
+    level: INFO
+    handlers: [console, performance_file]
+    propagate: false
+  
+  # Audit logger
+  audit:
+    level: INFO
+    handlers: [audit_file]
+    propagate: false
+  
+  # Health check logger
+  health:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+  
+  # Third-party loggers
+  httpx:
+    level: WARNING
+    handlers: [console, file]
+    propagate: false
+  
+  aiohttp:
+    level: WARNING
+    handlers: [console, file]
+    propagate: false
+  
+  uvicorn:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+  
+  fastapi:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+
+# Logging filters
+filters:
+  sensitive_data:
+    (): src.core.utils.logging_filters.SensitiveDataFilter
+  
+  performance_filter:
+    (): src.core.utils.logging_filters.PerformanceFilter

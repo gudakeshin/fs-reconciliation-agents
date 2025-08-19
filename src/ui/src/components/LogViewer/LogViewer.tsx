@@ -23,9 +23,9 @@ import {
   Tooltip,
   Collapse,
   Card,
-  CardContent
+  CardContent,
+  Grid
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import {
   Refresh as RefreshIcon,
   FilterList as FilterIcon,
@@ -240,46 +240,46 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                   <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
                     <Collapse in={expandedRows.has(log.id)} timeout="auto" unmountOnExit>
                       <Box sx={{ margin: 1 }}>
-                        <Grid container spacing={2}>
+                        <Grid container columns={12} spacing={2}>
                           {log.sub_component && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Sub Component: {log.sub_component}
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {log.function_name && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Function: {log.function_name}
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {log.line_number && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Line: {log.line_number}
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {log.execution_time_ms && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Execution Time: {log.execution_time_ms}ms
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {log.exception_message && (
-                            <Box sx={{ width: '100%' }}>
+                            <Grid sx={{ gridColumn: 'span 12' }}>
                               <Alert severity="error" sx={{ mt: 1 }}>
                                 <Typography variant="body2">
                                   {log.exception_message}
                                 </Typography>
                               </Alert>
-                            </Box>
+                            </Grid>
                           )}
                           {log.log_data && (
-                            <Box sx={{ width: '100%' }}>
+                            <Grid sx={{ gridColumn: 'span 12' }}>
                               <Card variant="outlined" sx={{ mt: 1 }}>
                                 <CardContent>
                                   <Typography variant="caption" color="text.secondary">
@@ -290,7 +290,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                                   </pre>
                                 </CardContent>
                               </Card>
-                            </Box>
+                            </Grid>
                           )}
                         </Grid>
                       </Box>
@@ -377,46 +377,46 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                   <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={expandedRows.has(entry.id)} timeout="auto" unmountOnExit>
                       <Box sx={{ margin: 1 }}>
-                        <Grid container spacing={2}>
+                        <Grid container columns={12} spacing={2}>
                           {entry.entity_type && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Entity: {entry.entity_type}
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {entry.processing_time_ms && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Processing Time: {entry.processing_time_ms}ms
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {entry.ai_model_used && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 AI Model: {entry.ai_model_used}
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {entry.ai_confidence_score && (
-                            <Box sx={{ width: { xs: '50%', sm: '50%' } }}>
+                            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 6' } }}>
                               <Typography variant="caption" color="text.secondary">
                                 Confidence: {(entry.ai_confidence_score * 100).toFixed(1)}%
                               </Typography>
-                            </Box>
+                            </Grid>
                           )}
                           {entry.error_message && (
-                            <Box sx={{ width: '100%' }}>
+                            <Grid sx={{ gridColumn: 'span 12' }}>
                               <Alert severity="error" sx={{ mt: 1 }}>
                                 <Typography variant="body2">
                                   {entry.error_message}
                                 </Typography>
                               </Alert>
-                            </Box>
+                            </Grid>
                           )}
                           {entry.action_data && (
-                            <Box sx={{ width: '100%' }}>
+                            <Grid sx={{ gridColumn: 'span 12' }}>
                               <Card variant="outlined" sx={{ mt: 1 }}>
                                 <CardContent>
                                   <Typography variant="caption" color="text.secondary">
@@ -427,7 +427,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                                   </pre>
                                 </CardContent>
                               </Card>
-                            </Box>
+                            </Grid>
                           )}
                         </Grid>
                       </Box>
@@ -481,10 +481,10 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
       {/* Filters */}
       <Collapse in={showFilters}>
         <Paper sx={{ p: 2, mb: 2 }}>
-          <Grid container spacing={2}>
+          <Grid container columns={12} spacing={2}>
             {type === 'system' ? (
               <>
-                <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+                <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>Level</InputLabel>
                     <Select
@@ -500,8 +500,8 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                       <MenuItem value="CRITICAL">CRITICAL</MenuItem>
                     </Select>
                   </FormControl>
-                </Box>
-                <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+                </Grid>
+                <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -509,11 +509,11 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                     value={filters.component}
                     onChange={(e) => handleFilterChange('component', e.target.value)}
                   />
-                </Box>
+                </Grid>
               </>
             ) : (
               <>
-                <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+                <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -521,8 +521,8 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                     value={filters.action_type}
                     onChange={(e) => handleFilterChange('action_type', e.target.value)}
                   />
-                </Box>
-                <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+                </Grid>
+                <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>Severity</InputLabel>
                     <Select
@@ -537,8 +537,8 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                       <MenuItem value="critical">Critical</MenuItem>
                     </Select>
                   </FormControl>
-                </Box>
-                <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+                </Grid>
+                <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -546,8 +546,8 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                     value={filters.user_id}
                     onChange={(e) => handleFilterChange('user_id', e.target.value)}
                   />
-                </Box>
-                <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+                </Grid>
+                <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -555,10 +555,10 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                     value={filters.entity_type}
                     onChange={(e) => handleFilterChange('entity_type', e.target.value)}
                   />
-                </Box>
+                </Grid>
               </>
             )}
-            <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
               <TextField
                 fullWidth
                 size="small"
@@ -568,8 +568,8 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                 onChange={(e) => handleFilterChange('start_time', e.target.value)}
                 InputLabelProps={{ shrink: true }}
               />
-            </Box>
-            <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+            </Grid>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
               <TextField
                 fullWidth
                 size="small"
@@ -579,7 +579,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ type }) => {
                 onChange={(e) => handleFilterChange('end_time', e.target.value)}
                 InputLabelProps={{ shrink: true }}
               />
-            </Box>
+            </Grid>
           </Grid>
         </Paper>
       </Collapse>

@@ -1,0 +1,215 @@
+# Security Configuration for FS Reconciliation Agents
+# Review and customize these settings for your environment
+
+security:
+  # Rate Limiting Configuration
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst_limit: 200
+    window_size_seconds: 60
+    
+  # IP Filtering
+  ip_filtering:
+    enabled: true
+    allowed_networks:
+      - "192.168.1.0/24"      # Local network
+      - "10.0.0.0/8"          # Private network
+      - "172.16.0.0/12"       # Private network
+    blocked_ips:
+      - "malicious.ip.address"
+      - "suspicious.ip.address"
+    
+  # Request Size Limits
+  request_limits:
+    max_request_size_mb: 10
+    max_file_upload_size_mb: 50
+    max_json_payload_size_mb: 5
+    
+  # Security Headers
+  security_headers:
+    enabled: true
+    content_security_policy: |
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+      font-src 'self' https:;
+      connect-src 'self' https:;
+      frame-ancestors 'none';
+      base-uri 'self';
+      form-action 'self'
+    xss_protection: "1; mode=block"
+    content_type_options: "nosniff"
+    frame_options: "DENY"
+    referrer_policy: "strict-origin-when-cross-origin"
+    hsts_max_age: 31536000
+    hsts_include_subdomains: true
+    
+  # CORS Configuration
+  cors:
+    enabled: true
+    allowed_origins:
+      - "http://localhost:3000"
+      - "https://yourdomain.com"
+      - "https://app.yourdomain.com"
+    allowed_methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "OPTIONS"
+    allowed_headers:
+      - "Content-Type"
+      - "Authorization"
+      - "X-Requested-With"
+    allow_credentials: true
+    max_age: 86400
+    
+  # Input Validation
+  input_validation:
+    enabled: true
+    sql_injection_protection: true
+    xss_protection: true
+    path_traversal_protection: true
+    max_string_length: 10000
+    allowed_file_types:
+      - ".csv"
+      - ".xlsx"
+      - ".json"
+      - ".xml"
+    
+  # Authentication & Authorization
+  authentication:
+    jwt_secret_key: "${JWT_SECRET_KEY}"  # Set in environment
+    jwt_algorithm: "HS256"
+    access_token_expire_minutes: 30
+    refresh_token_expire_days: 7
+    password_min_length: 8
+    password_require_special_chars: true
+    password_require_numbers: true
+    password_require_uppercase: true
+    password_require_lowercase: true
+    max_login_attempts: 5
+    lockout_duration_minutes: 15
+    
+  # Session Management
+  session:
+    enabled: true
+    session_timeout_minutes: 30
+    max_concurrent_sessions: 5
+    session_store: "redis"  # redis, memory, database
+    
+  # Audit Logging
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    log_security_events: true
+    log_authentication_events: true
+    log_authorization_events: true
+    log_data_access_events: true
+    log_file_path: "logs/security_audit.log"
+    retention_days: 90
+    
+  # Encryption
+  encryption:
+    data_at_rest: true
+    data_in_transit: true
+    encryption_algorithm: "AES-256-GCM"
+    key_rotation_days: 90
+    
+  # API Security
+  api_security:
+    enable_api_key_auth: false
+    enable_oauth2: false
+    enable_basic_auth: false
+    require_https: true
+    enable_request_signing: false
+    
+  # Database Security
+  database_security:
+    connection_encryption: true
+    parameterized_queries_only: true
+    max_connection_pool_size: 20
+    connection_timeout_seconds: 30
+    query_timeout_seconds: 60
+    
+  # File Upload Security
+  file_upload:
+    scan_for_viruses: true
+    validate_file_signatures: true
+    quarantine_suspicious_files: true
+    max_files_per_upload: 10
+    allowed_mime_types:
+      - "text/csv"
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      - "application/json"
+      - "application/xml"
+    
+  # Monitoring & Alerting
+  monitoring:
+    enable_security_monitoring: true
+    alert_on_failed_logins: true
+    alert_on_suspicious_activity: true
+    alert_on_rate_limit_exceeded: true
+    alert_on_large_payloads: true
+    alert_threshold_failed_logins: 10
+    alert_threshold_suspicious_requests: 5
+    
+  # Compliance
+  compliance:
+    gdpr_compliance: true
+    data_retention_days: 2555  # 7 years
+    data_anonymization: true
+    audit_trail_retention_days: 2555
+    privacy_policy_url: "https://yourdomain.com/privacy"
+    terms_of_service_url: "https://yourdomain.com/terms"
+
+# Environment-specific overrides
+environments:
+  development:
+    security:
+      rate_limiting:
+        requests_per_minute: 1000
+      cors:
+        allowed_origins:
+          - "http://localhost:3000"
+          - "http://localhost:3001"
+      audit_logging:
+        log_level: "DEBUG"
+        
+  staging:
+    security:
+      rate_limiting:
+        requests_per_minute: 500
+      cors:
+        allowed_origins:
+          - "https://staging.yourdomain.com"
+          
+  production:
+    security:
+      rate_limiting:
+        requests_per_minute: 100
+      cors:
+        allowed_origins:
+          - "https://yourdomain.com"
+          - "https://app.yourdomain.com"
+      audit_logging:
+        log_level: "WARNING"
+      monitoring:
+        enable_security_monitoring: true
+        alert_on_failed_logins: true
+        alert_on_suspicious_activity: true
+
+# Security Checklist
+security_checklist:
+  - "Review and update allowed IP networks"
+  - "Set strong JWT secret key"
+  - "Configure HTTPS certificates"
+  - "Set up monitoring and alerting"
+  - "Review and update CORS origins"
+  - "Configure audit logging retention"
+  - "Set up backup and recovery procedures"
+  - "Review password policies"
+  - "Configure rate limiting thresholds"
+  - "Set up security monitoring dashboards"

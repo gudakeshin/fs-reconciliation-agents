@@ -1,0 +1,217 @@
+# OpenAI Configuration for FS Reconciliation Agents
+
+# API Configuration
+api:
+  base_url: "https://api.openai.com/v1"
+  api_key: "${OPENAI_API_KEY}"
+  timeout: 30
+  max_retries: 3
+  retry_delay: 1
+
+# Model Configuration
+models:
+  # Primary models for different tasks
+  gpt-4o-mini:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 2000
+    top_p: 1.0
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    
+  gpt-4o:
+    model: "gpt-4o"
+    temperature: 0.1
+    max_tokens: 4000
+    top_p: 1.0
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    
+  gpt-4-turbo:
+    model: "gpt-4-turbo"
+    temperature: 0.1
+    max_tokens: 4000
+    top_p: 1.0
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+
+# Task-specific configurations
+tasks:
+  data_ingestion:
+    model: "gpt-4o-mini"
+    temperature: 0.1
+    max_tokens: 2000
+    system_prompt: |
+      You are a financial data ingestion expert. Your role is to:
+      1. Parse and extract structured financial data from various file formats
+      2. Normalize data to standard formats
+      3. Validate data integrity and completeness
+      4. Handle multiple data sources (Bloomberg, Reuters, bank statements, etc.)
+      5. Extract transaction details including amounts, dates, security IDs, etc.
+      
+      Always return data in JSON format with clear field names.
+    
+  data_normalization:
+    model: "gpt-4o-mini"
+    temperature: 0.1
+    max_tokens: 1500
+    system_prompt: |
+      You are a financial data normalization expert. Your role is to:
+      1. Standardize date formats to ISO 8601
+      2. Normalize currency codes to ISO 4217
+      3. Standardize security identifiers (ISIN, CUSIP, SEDOL)
+      4. Convert amounts to decimal format
+      5. Handle missing or invalid data appropriately
+      
+      Always return normalized data in JSON format.
+    
+  matching:
+    model: "gpt-4o-mini"
+    temperature: 0.1
+    max_tokens: 1000
+    system_prompt: |
+      You are a financial transaction matching expert. Your role is to:
+      1. Compare transaction records for exact and fuzzy matches
+      2. Calculate confidence scores for matches
+      3. Identify matching criteria (amount, date, security ID, etc.)
+      4. Handle partial matches and discrepancies
+      5. Provide reasoning for match decisions
+      
+      Return match results with confidence scores and reasoning.
+    
+  exception_identification:
+    model: "gpt-4o-mini"
+    temperature: 0.1
+    max_tokens: 1500
+    system_prompt: |
+      You are a financial reconciliation exception expert. Your role is to:
+      1. Identify reconciliation breaks and discrepancies
+      2. Classify break types (security ID, coupon payments, market prices, etc.)
+      3. Assess severity and priority of exceptions
+      4. Provide detailed analysis of break causes
+      5. Suggest potential resolution strategies
+      
+      Return exception details with classification and analysis.
+    
+  resolution:
+    model: "gpt-4o-mini"
+    temperature: 0.1
+    max_tokens: 2000
+    system_prompt: |
+      You are a financial reconciliation resolution expert. Your role is to:
+      1. Analyze reconciliation exceptions and breaks
+      2. Suggest corrective actions and adjustments
+      3. Calculate required corrections (amounts, dates, rates)
+      4. Provide detailed resolution steps
+      5. Assess confidence in resolution recommendations
+      
+      Return resolution recommendations with detailed steps and confidence.
+    
+  reporting:
+    model: "gpt-4o-mini"
+    temperature: 0.1
+    max_tokens: 3000
+    system_prompt: |
+      You are a financial reporting expert. Your role is to:
+      1. Generate comprehensive reconciliation reports
+      2. Summarize exception statistics and trends
+      3. Provide insights and recommendations
+      4. Create executive summaries
+      5. Format reports for different audiences
+      
+      Return well-structured reports with clear insights and recommendations.
+
+# Prompt templates
+prompts:
+  data_cleansing: |
+    Please clean and normalize the following financial data:
+    
+    Requirements:
+    - Standardize date formats to YYYY-MM-DD
+    - Normalize currency codes to 3-letter ISO codes
+    - Convert amounts to decimal format
+    - Standardize security identifiers
+    - Handle missing values appropriately
+    
+    Return the cleaned data in JSON format with these fields:
+    - external_id: Transaction reference
+    - amount: Transaction amount (decimal)
+    - currency: Currency code (3 letters)
+    - quantity: Quantity of securities (if applicable)
+    - security_id: Security identifier
+    - security_name: Security name
+    - isin: ISIN code (12 characters)
+    - cusip: CUSIP code (9 characters)
+    - sedol: SEDOL code (7 characters)
+    - trade_date: Trade date (YYYY-MM-DD)
+    - settlement_date: Settlement date (YYYY-MM-DD)
+    - fx_rate: Foreign exchange rate (if applicable)
+    - fx_currency: FX currency code
+    - market_price: Market price (if applicable)
+    - market_value: Market value (if applicable)
+    
+    Raw data to clean:
+    {data}
+  
+  matching_analysis: |
+    Please analyze the following transaction pair for matching:
+    
+    Transaction A: {transaction_a}
+    Transaction B: {transaction_b}
+    
+    Analyze for:
+    1. Exact matches on key fields
+    2. Fuzzy matches with confidence scores
+    3. Discrepancies and differences
+    4. Potential reconciliation breaks
+    
+    Return analysis in JSON format with:
+    - match_type: "exact", "fuzzy", or "no_match"
+    - confidence_score: 0.0 to 1.0
+    - matching_fields: List of matching field names
+    - discrepancies: List of field differences
+    - break_type: Type of reconciliation break (if any)
+    - reasoning: Detailed explanation of match decision
+  
+  exception_analysis: |
+    Please analyze the following reconciliation exception:
+    
+    Exception details: {exception_data}
+    
+    Analyze for:
+    1. Break type classification
+    2. Severity assessment
+    3. Root cause analysis
+    4. Impact assessment
+    5. Resolution recommendations
+    
+    Return analysis in JSON format with:
+    - break_type: Classification of the break
+    - severity: "low", "medium", "high", "critical"
+    - root_cause: Identified cause of the break
+    - impact: Business impact assessment
+    - resolution_steps: Recommended resolution actions
+    - confidence: Confidence in analysis (0.0 to 1.0)
+
+# Rate limiting and usage
+rate_limiting:
+  requests_per_minute: 60
+  requests_per_hour: 1000
+  tokens_per_minute: 100000
+  tokens_per_hour: 1000000
+
+# Error handling
+error_handling:
+  retry_on_rate_limit: true
+  retry_on_timeout: true
+  max_retries: 3
+  backoff_factor: 2
+  timeout_seconds: 30
+
+# Monitoring and logging
+monitoring:
+  log_requests: true
+  log_responses: false
+  log_errors: true
+  track_usage: true
+  alert_on_errors: true

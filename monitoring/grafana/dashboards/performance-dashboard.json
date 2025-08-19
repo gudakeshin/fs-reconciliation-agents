@@ -1,0 +1,228 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "FS Reconciliation Agents - Performance Dashboard",
+    "tags": ["reconciliation", "performance", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "cpu_usage_percent",
+            "legendFormat": "CPU Usage"
+          },
+          {
+            "expr": "memory_usage_percent",
+            "legendFormat": "Memory Usage"
+          },
+          {
+            "expr": "disk_usage_percent",
+            "legendFormat": "Disk Usage"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 85}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "API Response Times",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Response Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Requests per second",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
+            "legendFormat": "5xx Errors"
+          },
+          {
+            "expr": "rate(http_requests_total{status=~\"4..\"}[5m])",
+            "legendFormat": "4xx Errors"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors per second",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Database Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "database_connections",
+            "legendFormat": "Active Connections"
+          },
+          {
+            "expr": "rate(database_query_duration_seconds_sum[5m]) / rate(database_query_duration_seconds_count[5m])",
+            "legendFormat": "Avg Query Time"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Connections / Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Cache Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "cache_hit_ratio",
+            "legendFormat": "Cache Hit Ratio"
+          },
+          {
+            "expr": "rate(cache_operations_total[5m])",
+            "legendFormat": "Cache Operations/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Ratio / Operations per second",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Reconciliation Processing",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(reconciliation_processing_time_seconds_sum[5m]) / rate(reconciliation_processing_time_seconds_count[5m])",
+            "legendFormat": "{{data_source}} {{break_type}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Processing Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 8,
+        "title": "Exception Processing",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(exceptions_processed_total[5m])",
+            "legendFormat": "{{break_type}} {{severity}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Exceptions per second",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 9,
+        "title": "AI Predictions",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ai_predictions_total[5m])",
+            "legendFormat": "{{model_type}}"
+          },
+          {
+            "expr": "ai_prediction_accuracy",
+            "legendFormat": "Prediction Accuracy"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Predictions per second / Accuracy",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+      },
+      {
+        "id": 10,
+        "title": "Data Upload Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(data_upload_size_bytes_sum[5m]) / rate(data_upload_size_bytes_count[5m])",
+            "legendFormat": "{{file_type}} {{data_source}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Upload Size (bytes)",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

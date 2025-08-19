@@ -1,0 +1,175 @@
+# FS Reconciliation Agents - Main Configuration
+
+# Application Settings
+app:
+  name: "FS Reconciliation Agents"
+  version: "1.0.0"
+  environment: "development"
+  debug: true
+  log_level: "INFO"
+
+# Database Configuration
+database:
+  url: "${DATABASE_URL}"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  pool_recycle: 3600
+  echo: false
+
+# Redis Configuration
+redis:
+  url: "${REDIS_URL}"
+  pool_size: 10
+  timeout: 5
+
+# OpenAI Configuration
+openai:
+  api_key: "${OPENAI_API_KEY}"
+  model: "gpt-4o-mini-2024-07-18"
+  temperature: 0.1
+  max_tokens: 2000
+  timeout: 30
+
+# Agent Configuration
+agents:
+  data_ingestion:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 2000
+    batch_size: 100
+    
+  normalization:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 1500
+    confidence_threshold: 0.8
+    
+  matching:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 1000
+    exact_match_threshold: 0.95
+    fuzzy_match_threshold: 0.8
+    
+  exception_identification:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 1500
+    confidence_threshold: 0.7
+    
+  resolution:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 2000
+    auto_resolve_threshold: 0.9
+    
+  reporting:
+    model: "gpt-4o-mini-2024-07-18"
+    temperature: 0.1
+    max_tokens: 3000
+
+# Security Configuration
+security:
+  secret_key: "${SECRET_KEY}"
+  jwt_secret_key: "${JWT_SECRET_KEY}"
+  jwt_algorithm: "HS256"
+  jwt_expiration_hours: 24
+  password_min_length: 8
+  session_timeout_minutes: 60
+
+# File Processing Configuration
+file_processing:
+  max_file_size_mb: 100
+  allowed_extensions: [".csv", ".xlsx", ".xls", ".xml", ".pdf", ".txt"]
+  temp_directory: "/tmp/fs_reconciliation"
+  retention_days: 7
+
+# Reconciliation Configuration
+reconciliation:
+  batch_size: 1000
+  timeout_seconds: 300
+  retry_attempts: 3
+  confidence_threshold: 0.8
+  auto_match_threshold: 0.95
+  
+  # Break types configuration
+  break_types:
+    security_id_breaks:
+      enabled: true
+      priority: "high"
+      auto_resolve: false
+      
+    fixed_income_coupon_payments:
+      enabled: true
+      priority: "medium"
+      auto_resolve: true
+      
+    market_price_differences:
+      enabled: true
+      priority: "medium"
+      auto_resolve: false
+      
+    trade_vs_settlement_date:
+      enabled: true
+      priority: "low"
+      auto_resolve: true
+      
+    fx_rate_errors:
+      enabled: true
+      priority: "high"
+      auto_resolve: false
+
+# Notification Configuration
+notifications:
+  email:
+    enabled: true
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    smtp_username: "${SMTP_USERNAME}"
+    smtp_password: "${SMTP_PASSWORD}"
+    
+  slack:
+    enabled: false
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    
+  teams:
+    enabled: false
+    webhook_url: "${TEAMS_WEBHOOK_URL}"
+
+# Monitoring Configuration
+monitoring:
+  prometheus:
+    enabled: true
+    port: 9090
+    
+  grafana:
+    enabled: true
+    port: 3000
+    admin_password: "${GRAFANA_PASSWORD}"
+    
+  health_check:
+    interval_seconds: 30
+    timeout_seconds: 10
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/fs_reconciliation.log"
+  max_size_mb: 100
+  backup_count: 5
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["http://localhost:3000", "http://localhost:80"]
+  rate_limit_requests: 100
+  rate_limit_window: 60
+
+# UI Configuration
+ui:
+  api_base_url: "http://localhost:8000"
+  environment: "development"
+  debug: true

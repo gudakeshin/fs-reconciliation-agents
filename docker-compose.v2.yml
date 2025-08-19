@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  api-service:
+    build:
+      context: .
+      dockerfile: docker/api-service/Dockerfile
+    environment:
+      - API_VERSION=v2
+      - ENABLE_CACHE=true
+      - ENABLE_WEBSOCKETS=true
+      - ENABLE_RATE_LIMITING=true
+    volumes:
+      - ./src/api/v2:/app/src/api/v2
+      - ./src/core/services/caching:/app/src/core/services/caching
+      - ./src/core/services/ai:/app/src/core/services/ai
+      - ./src/api/v2/middleware.py:/app/src/api/v2/middleware.py
+      - ./src/api/v2/websockets.py:/app/src/api/v2/websockets.py
+      - ./scripts/database_optimization.sql:/app/database_optimization.sql
+    command: ["python", "-m", "uvicorn", "src.api.v2.main_simple:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+  
+  database:
+    volumes:
+      - ./scripts/database_optimization.sql:/app/database_optimization.sql
